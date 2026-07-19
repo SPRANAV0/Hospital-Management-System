@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Register Patient{% endblock %}
+{% block header %}👤 Register New Patient{% endblock %}
+{% block content %}
+<div class="card" style="max-width:680px">
+  <form method="post">
+    <div class="form-grid">
+      <div class="full">
+        <label>Full Name *</label>
+        <input name="full_name" required value="{{ form.full_name or '' }}">
+      </div>
+      <div>
+        <label>Gender *</label>
+        <select name="gender" required>
+          <option value="">Select…</option>
+          {% for g in ['Male','Female','Other'] %}
+            <option value="{{ g }}" {{ 'selected' if form.gender==g }}>{{ g }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Date of Birth *</label>
+        <input type="date" name="dob" required value="{{ form.dob or '' }}">
+      </div>
+      <div>
+        <label>Phone (10 digits) *</label>
+        <input name="phone" maxlength="10" pattern="\d{10}" required value="{{ form.phone or '' }}">
+      </div>
+      <div>
+        <label>Blood Group</label>
+        <select name="blood_group">
+          <option value="">Unknown</option>
+          {% for bg in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+            <option value="{{ bg }}" {{ 'selected' if form.blood_group==bg }}>{{ bg }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="full">
+        <label>Address</label>
+        <textarea name="address" rows="2">{{ form.address or '' }}</textarea>
+      </div>
+      <div class="full" style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" type="submit">Register Patient</button>
+        <a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('patients_list') }}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

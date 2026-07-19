@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Doctors{% endblock %}
+{% block header %}👨‍⚕️ Doctor Management{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+  <a class="btn btn-primary" href="{{ url_for('doctor_new') }}">＋ Register Doctor</a>
+</div>
+
+<div class="card">
+<div class="tbl-wrap">
+<table>
+  <thead>
+    <tr><th>#</th><th>Name</th><th>Specialization</th><th>Phone</th><th class="text-right">Consult. Fee</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for d in doctors %}
+    <tr>
+      <td class="text-muted">{{ d.doctor_id }}</td>
+      <td class="strong">{{ d.full_name }}</td>
+      <td>{{ d.specialization }}</td>
+      <td>{{ d.phone }}</td>
+      <td class="text-right">₹{{ d.consultation_fee }}</td>
+      <td>
+        {% if d.is_available %}
+          <span class="badge badge-completed">Available</span>
+        {% else %}
+          <span class="badge badge-cancelled">Unavailable</span>
+        {% endif %}
+      </td>
+      <td>
+        <a class="btn btn-sm" style="background:#e9ecef;color:#333"
+           href="{{ url_for('doctor_toggle', doctor_id=d.doctor_id) }}">
+          {{ 'Set Unavailable' if d.is_available else 'Set Available' }}
+        </a>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="text-center text-muted" style="padding:20px">No doctors registered.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

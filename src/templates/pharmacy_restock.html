@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Restock {{ med.medicine_name }}{% endblock %}
+{% block header %}💊 Restock Medicine{% endblock %}
+{% block content %}
+<div class="card" style="max-width:400px">
+  <div class="card-title">{{ med.medicine_name }}</div>
+  <p class="text-muted" style="margin-bottom:16px">Current stock: <strong>{{ med.stock_quantity }}</strong> units</p>
+  <form method="post">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label>Quantity to Add *</label>
+        <input type="number" name="quantity" min="1" value="50" required>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" type="submit">Restock</button>
+        <a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('pharmacy_list') }}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

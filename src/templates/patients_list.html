@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Patients{% endblock %}
+{% block header %}👤 Patient Management{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+  <form method="get" style="display:flex;gap:10px;align-items:center">
+    <input name="q" value="{{ q }}" placeholder="Search by name…" style="width:220px">
+    <input name="phone" value="{{ phone }}" placeholder="Phone number…" style="width:170px">
+    <button class="btn btn-primary" type="submit">Search</button>
+    {% if q or phone %}<a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('patients_list') }}">Clear</a>{% endif %}
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('patient_new') }}">＋ Register Patient</a>
+</div>
+
+<div class="card">
+  <div class="tbl-wrap">
+  <table>
+    <thead>
+      <tr><th>#</th><th>Name</th><th>Gender</th><th>DOB</th><th>Phone</th><th>Blood</th><th>Registered</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for p in patients %}
+      <tr>
+        <td class="text-muted">{{ p.patient_id }}</td>
+        <td class="strong">{{ p.full_name }}</td>
+        <td>{{ p.gender }}</td>
+        <td>{{ p.dob }}</td>
+        <td>{{ p.phone }}</td>
+        <td>{{ p.blood_group or '—' }}</td>
+        <td class="text-muted">{{ p.registered_on.strftime('%d %b %Y') if p.registered_on else '' }}</td>
+        <td>
+          <a class="btn btn-sm" style="background:#e9ecef;color:#333" href="{{ url_for('patient_detail', patient_id=p.patient_id) }}">View</a>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('visit_new') }}?patient_id={{ p.patient_id }}">New Visit</a>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="8" class="text-center text-muted" style="padding:24px">No patients found.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

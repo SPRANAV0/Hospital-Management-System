@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Register Doctor{% endblock %}
+{% block header %}👨‍⚕️ Register New Doctor{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px">
+  <form method="post">
+    <div class="form-grid">
+      <div class="full">
+        <label>Full Name *</label>
+        <input name="full_name" required value="{{ form.full_name or '' }}">
+      </div>
+      <div>
+        <label>Specialization *</label>
+        <input name="specialization" required value="{{ form.specialization or '' }}">
+      </div>
+      <div>
+        <label>Phone (10 digits) *</label>
+        <input name="phone" maxlength="10" pattern="\d{10}" required value="{{ form.phone or '' }}">
+      </div>
+      <div>
+        <label>Consultation Fee (₹) *</label>
+        <input type="number" name="consultation_fee" step="0.01" min="0" required value="{{ form.consultation_fee or '' }}">
+      </div>
+      <div class="full" style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" type="submit">Register Doctor</button>
+        <a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('doctors_list') }}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

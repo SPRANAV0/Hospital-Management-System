@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}New OPD Visit{% endblock %}
+{% block header %}📋 Register New OPD Visit{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px">
+  <form method="post">
+    <div class="form-grid">
+      <div>
+        <label>Patient *</label>
+        <select name="patient_id" required>
+          <option value="">Select patient…</option>
+          {% for p in patients %}
+            <option value="{{ p.patient_id }}" {{ 'selected' if p.patient_id|string == preselect_patient }}>
+              #{{ p.patient_id }} – {{ p.full_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Doctor *</label>
+        <select name="doctor_id" required>
+          <option value="">Select doctor…</option>
+          {% for d in doctors %}
+            <option value="{{ d.doctor_id }}">{{ d.full_name }} ({{ d.specialization }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Visit Date</label>
+        <input type="date" name="visit_date" value="{{ today }}">
+      </div>
+      <div class="full" style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" type="submit">Register Visit &amp; Assign Token</button>
+        <a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('visits_list') }}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

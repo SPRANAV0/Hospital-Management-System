@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Pharmacy{% endblock %}
+{% block header %}💊 Pharmacy Inventory{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+  <a class="btn btn-primary" href="{{ url_for('pharmacy_add') }}">＋ Add Medicine</a>
+</div>
+
+<div class="card">
+<div class="tbl-wrap">
+<table>
+  <thead>
+    <tr><th>#</th><th>Medicine Name</th><th class="text-right">Unit Price</th><th class="text-right">Stock</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for m in medicines %}
+    <tr>
+      <td class="text-muted">{{ m.medicine_id }}</td>
+      <td class="strong">{{ m.medicine_name }}</td>
+      <td class="text-right">₹{{ m.unit_price }}</td>
+      <td class="text-right {% if m.stock_quantity <= 10 %}strong{% endif %}"
+          style="{% if m.stock_quantity <= 10 %}color:#dc3545{% endif %}">
+        {{ m.stock_quantity }}
+        {% if m.stock_quantity <= 10 %} ⚠️{% endif %}
+      </td>
+      <td>
+        <a class="btn btn-sm" style="background:#e9ecef;color:#333"
+           href="{{ url_for('pharmacy_restock', medicine_id=m.medicine_id) }}">Restock</a>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="text-center text-muted" style="padding:20px">No medicines in inventory.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

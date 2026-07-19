@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Visit #{{ visit.visit_id }}{% endblock %}
+{% block header %}📋 Visit #{{ visit.visit_id }} — Token #{{ visit.token_number }}{% endblock %}
+{% block content %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+
+  <div class="card">
+    <div class="card-title">Visit Information</div>
+    <table style="font-size:13.5px">
+      <tr><td class="text-muted" style="padding:5px 0;width:130px">Patient</td><td class="strong">{{ visit.patient_name }}</td></tr>
+      <tr><td class="text-muted" style="padding:5px 0">Doctor</td><td>{{ visit.doctor_name }}</td></tr>
+      <tr><td class="text-muted" style="padding:5px 0">Date</td><td>{{ visit.visit_date }}</td></tr>
+      <tr><td class="text-muted" style="padding:5px 0">Time</td><td>{{ visit.visit_time }}</td></tr>
+      <tr><td class="text-muted" style="padding:5px 0">Status</td>
+          <td><span class="badge badge-{{ visit.status.lower().replace(' ','-') }}">{{ visit.status }}</span></td></tr>
+    </table>
+
+    {% if visit.status in ['Waiting','In Consultation'] %}
+    <div class="mt2" style="display:flex;gap:8px">
+      <a class="btn btn-sm" style="background:#0dcaf0;color:#000" href="{{ url_for('visit_status', visit_id=visit.visit_id, status='In Consultation') }}">Start Consultation</a>
+      <a class="btn btn-danger btn-sm" href="{{ url_for('visit_status', visit_id=visit.visit_id, status='Cancelled') }}">Cancel</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-title">Diagnosis & Notes</div>
+    {% if visit.diagnosis %}
+      <p class="strong">{{ visit.diagnosis }}</p>
+      <p class="text-muted mt1">{{ visit.notes or '' }}</p>
+    {% else %}
+      <p class="text-muted">No diagnosis recorded yet.</p>
+    {% endif %}
+
+    {% if visit.status != 'Cancelled' %}
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;font-weight:600;color:var(--primary)">
+        {{ '✏️ Edit Diagnosis' if visit.diagnosis else '＋ Add Diagnosis' }}
+      </summary>
+      <form method="post" action="{{ url_for('visit_diagnose', visit_id=visit.visit_id) }}" style="margin-top:10px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div><label>Diagnosis</label>
+               <input name="diagnosis" value="{{ visit.diagnosis or '' }}" required></div>
+          <div><label>Notes</label>
+               <textarea name="notes" rows="2">{{ visit.notes or '' }}</textarea></div>
+          <button class="btn btn-primary btn-sm" type="submit">Save & Mark Completed</button>
+        </div>
+      </form>
+    </details>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Prescriptions</div>
+  {% if prescriptions %}
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Medicine</th><th>Dosage</th><th>Duration</th><th>Qty</th><th class="text-right">Unit Price</th><th class="text-right">Total</th></tr></thead>
+    <tbody>
+    {% for p in prescriptions %}
+      <tr>
+        <td>{{ p.medicine_name }}</td>
+        <td>{{ p.dosage or '—' }}</td>
+        <td>{{ p.duration_days }} days</td>
+        <td>{{ p.quantity }}</td>
+        <td class="text-right">₹{{ p.unit_price }}</td>
+        <td class="text-right strong">₹{{ p.line_total }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="text-muted">No medicines prescribed yet.</p>
+  {% endif %}
+
+  {% if not bill or bill.payment_status != 'Paid' %}
+  <details style="margin-top:14px">
+    <summary style="cursor:pointer;font-weight:600;color:var(--primary)">＋ Add Prescription</summary>
+    <form method="post" action="{{ url_for('visit_prescribe', visit_id=visit.visit_id) }}" style="margin-top:10px">
+      <div class="form-grid">
+        <div>
+          <label>Medicine *</label>
+          <select name="medicine_id" required>
+            <option value="">Select…</option>
+            {% for m in medicines %}
+              <option value="{{ m.medicine_id }}">{{ m.medicine_name }} (stock: {{ m.stock_quantity }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Dosage</label>
+          <input name="dosage" placeholder="e.g. 1 tab twice daily">
+        </div>
+        <div>
+          <label>Duration (days) *</label>
+          <input type="number" name="duration_days" min="1" value="5" required>
+        </div>
+        <div>
+          <label>Quantity *</label>
+          <input type="number" name="quantity" min="1" value="1" required>
+        </div>
+        <div class="full">
+          <button class="btn btn-primary btn-sm" type="submit">Add Medicine</button>
+        </div>
+      </div>
+    </form>
+  </details>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-title">Bill</div>
+  {% if bill %}
+    <table style="font-size:13.5px;max-width:400px">
+      <tr><td style="padding:5px 0;color:var(--muted);width:200px">Consultation Fee</td><td class="strong">₹{{ bill.consultation_fee }}</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted)">Medicine Charges</td><td class="strong">₹{{ bill.medicine_charges }}</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted)">Total Amount</td><td class="strong" style="font-size:16px;color:var(--primary)">₹{{ bill.total_amount }}</td></tr>
+      <tr><td style="padding:5px 0;color:var(--muted)">Payment Status</td>
+          <td><span class="badge badge-{{ bill.payment_status.lower() }}">{{ bill.payment_status }}</span></td></tr>
+    </table>
+    {% if bill.payment_status == 'Pending' %}
+    <div class="mt2" style="display:flex;gap:10px">
+      <a class="btn btn-primary btn-sm" href="{{ url_for('visit_generate_bill', visit_id=visit.visit_id) }}">🔄 Recalculate Bill</a>
+      <a class="btn btn-success btn-sm" href="{{ url_for('bill_pay', bill_id=bill.bill_id) }}">✅ Mark as Paid</a>
+    </div>
+    {% endif %}
+  {% else %}
+    <p class="text-muted">No bill generated yet.</p>
+    <a class="btn btn-primary btn-sm mt1" href="{{ url_for('visit_generate_bill', visit_id=visit.visit_id) }}">Generate Bill</a>
+  {% endif %}
+</div>
+{% endblock %}

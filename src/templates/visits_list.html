@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}OPD Visits{% endblock %}
+{% block header %}📋 OPD / Visits{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+  <form method="get" style="display:flex;gap:10px;align-items:center">
+    <input type="date" name="date" value="{{ filter_date }}">
+    <button class="btn btn-primary" type="submit">Filter</button>
+    <a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('visits_list') }}">Today</a>
+  </form>
+  <a class="btn btn-primary" href="{{ url_for('visit_new') }}">＋ New OPD Visit</a>
+</div>
+
+<div class="card">
+<div class="tbl-wrap">
+<table>
+  <thead>
+    <tr><th>Visit #</th><th>Token</th><th>Date</th><th>Patient</th><th>Doctor</th><th>Status</th><th>Diagnosis</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for v in visits %}
+    <tr>
+      <td class="text-muted">{{ v.visit_id }}</td>
+      <td class="strong">#{{ v.token_number }}</td>
+      <td>{{ v.visit_date }}</td>
+      <td>{{ v.patient_name }}</td>
+      <td>{{ v.doctor_name }}</td>
+      <td>
+        <span class="badge badge-{{ v.status.lower().replace(' ','-') }}">{{ v.status }}</span>
+      </td>
+      <td class="text-muted">{{ (v.diagnosis or '—')[:40] }}{% if v.diagnosis and v.diagnosis|length > 40 %}…{% endif %}</td>
+      <td>
+        <a class="btn btn-sm" style="background:#e9ecef;color:#333" href="{{ url_for('visit_detail', visit_id=v.visit_id) }}">View</a>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8" class="text-center text-muted" style="padding:20px">No visits found for this date.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

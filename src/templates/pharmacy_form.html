@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Add Medicine{% endblock %}
+{% block header %}💊 Add Medicine to Inventory{% endblock %}
+{% block content %}
+<div class="card" style="max-width:500px">
+  <form method="post">
+    <div class="form-grid">
+      <div class="full">
+        <label>Medicine Name *</label>
+        <input name="medicine_name" required>
+      </div>
+      <div>
+        <label>Unit Price (₹) *</label>
+        <input type="number" name="unit_price" step="0.01" min="0" required>
+      </div>
+      <div>
+        <label>Initial Stock *</label>
+        <input type="number" name="stock_quantity" min="0" value="0" required>
+      </div>
+      <div class="full" style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-primary" type="submit">Add Medicine</button>
+        <a class="btn" style="background:#e9ecef;color:#333" href="{{ url_for('pharmacy_list') }}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

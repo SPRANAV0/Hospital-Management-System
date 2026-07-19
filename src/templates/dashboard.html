@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block header %}📊 Dashboard — {{ today }}{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-tile">
+    <div class="val">{{ summary.total_visits or 0 }}</div>
+    <div class="lbl">Today's Visits</div>
+  </div>
+  <div class="stat-tile">
+    <div class="val">{{ summary.waiting or 0 }}</div>
+    <div class="lbl">Waiting</div>
+  </div>
+  <div class="stat-tile">
+    <div class="val">{{ summary.in_consultation or 0 }}</div>
+    <div class="lbl">In Consultation</div>
+  </div>
+  <div class="stat-tile">
+    <div class="val">{{ summary.completed or 0 }}</div>
+    <div class="lbl">Completed</div>
+  </div>
+  <div class="stat-tile">
+    <div class="val">₹{{ "%.0f"|format(summary.revenue_collected|float) }}</div>
+    <div class="lbl">Collected Today</div>
+  </div>
+  <div class="stat-tile">
+    <div class="val">{{ low_stock|length }}</div>
+    <div class="lbl">Low Stock Medicines</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+  <div class="card">
+    <div class="card-title">Today's OPD Queue</div>
+    {% if queue %}
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Token</th><th>Patient</th><th>Doctor</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for row in queue %}
+        <tr>
+          <td class="strong">#{{ row.token_number }}</td>
+          <td>{{ row.patient_name }}</td>
+          <td>{{ row.doctor_name }}</td>
+          <td>
+            {% if row.status == 'Waiting' %}
+              <span class="badge badge-waiting">Waiting</span>
+            {% elif row.status == 'In Consultation' %}
+              <span class="badge badge-active">In Consult.</span>
+            {% else %}
+              <span class="badge badge-completed">{{ row.status }}</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <p class="text-muted">No visits registered for today yet. <a href="{{ url_for('visit_new') }}">Create one →</a></p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚠️ Low Stock Medicines (≤ 10 units)</div>
+    {% if low_stock %}
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Medicine</th><th>Stock</th></tr></thead>
+      <tbody>
+      {% for m in low_stock %}
+        <tr>
+          <td>{{ m.medicine_name }}</td>
+          <td class="strong" style="color:#dc3545">{{ m.stock_quantity }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <p class="text-muted">All medicines are adequately stocked.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<div class="card mt2">
+  <div class="card-title">Outstanding (Unpaid) Bills</div>
+  {% if outstanding %}
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Bill #</th><th>Patient</th><th>Doctor</th><th>Visit Date</th><th class="text-right">Amount</th><th></th></tr></thead>
+    <tbody>
+    {% for b in outstanding %}
+      <tr>
+        <td>{{ b.bill_id }}</td>
+        <td>{{ b.patient_name }}</td>
+        <td>{{ b.doctor_name }}</td>
+        <td>{{ b.visit_date }}</td>
+        <td class="text-right strong">₹{{ b.total_amount }}</td>
+        <td><a class="btn btn-success btn-sm" href="{{ url_for('bill_pay', bill_id=b.bill_id) }}">Mark Paid</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+    <p class="text-muted">No outstanding bills. 🎉</p>
+  {% endif %}
+</div>
+{% endblock %}

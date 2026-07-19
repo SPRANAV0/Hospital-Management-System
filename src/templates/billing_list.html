@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Billing{% endblock %}
+{% block header %}🧾 Billing{% endblock %}
+{% block content %}
+
+<div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+  <form method="get" style="display:flex;gap:10px">
+    <select name="status" onchange="this.form.submit()">
+      <option value="">All Bills</option>
+      <option value="Pending"  {{ 'selected' if filter_status=='Pending' }}>Pending</option>
+      <option value="Paid"     {{ 'selected' if filter_status=='Paid' }}>Paid</option>
+    </select>
+  </form>
+</div>
+
+<div class="card">
+<div class="tbl-wrap">
+<table>
+  <thead>
+    <tr><th>Bill #</th><th>Visit #</th><th>Patient</th><th>Doctor</th><th>Visit Date</th>
+        <th class="text-right">Consult.</th><th class="text-right">Medicine</th>
+        <th class="text-right">Total</th><th>Status</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for b in bills %}
+    <tr>
+      <td class="text-muted">{{ b.bill_id }}</td>
+      <td>{{ b.visit_id }}</td>
+      <td>{{ b.patient_name }}</td>
+      <td>{{ b.doctor_name }}</td>
+      <td>{{ b.visit_date }}</td>
+      <td class="text-right">₹{{ b.consultation_fee }}</td>
+      <td class="text-right">₹{{ b.medicine_charges }}</td>
+      <td class="text-right strong">₹{{ b.total_amount }}</td>
+      <td><span class="badge badge-{{ b.payment_status.lower() }}">{{ b.payment_status }}</span></td>
+      <td style="display:flex;gap:6px">
+        <a class="btn btn-sm" style="background:#e9ecef;color:#333"
+           href="{{ url_for('visit_detail', visit_id=b.visit_id) }}">View</a>
+        {% if b.payment_status == 'Pending' %}
+          <a class="btn btn-success btn-sm" href="{{ url_for('bill_pay', bill_id=b.bill_id) }}">Pay</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="10" class="text-center text-muted" style="padding:20px">No bills found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

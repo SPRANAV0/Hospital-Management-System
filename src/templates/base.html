@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}HMS{% endblock %} | Hospital Management</title>
+  <style>
+    :root {
+      --primary: #1a6bbf;
+      --primary-dark: #135299;
+      --accent:  #e8f1fb;
+      --danger:  #dc3545;
+      --success: #198754;
+      --warning: #f0ad4e;
+      --text:    #212529;
+      --muted:   #6c757d;
+      --border:  #dee2e6;
+      --bg:      #f4f7fb;
+      --card:    #ffffff;
+      --sidebar-w: 220px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px;
+           background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w); background: var(--primary); color: #fff;
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0;
+      height: 100vh; z-index: 100;
+    }
+    #sidebar .brand {
+      padding: 20px 16px 14px; font-size: 15px; font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,.15); letter-spacing: .3px;
+    }
+    #sidebar .brand span { font-size: 22px; margin-right: 6px; }
+    #sidebar nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; color: rgba(255,255,255,.85); text-decoration: none;
+      font-size: 13.5px; transition: background .15s;
+    }
+    #sidebar nav a:hover, #sidebar nav a.active {
+      background: rgba(255,255,255,.15); color: #fff;
+    }
+    #sidebar nav .section-label {
+      font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,.45); padding: 14px 16px 4px;
+    }
+
+    /* ── Main ── */
+    #main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    header {
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; font-size: 18px; font-weight: 600; color: var(--primary-dark);
+    }
+    .content { padding: 24px 28px; flex: 1; }
+
+    /* ── Flash messages ── */
+    .flash-list { list-style: none; margin-bottom: 18px; }
+    .flash-list li {
+      padding: 10px 16px; border-radius: 6px; margin-bottom: 8px; font-size: 13.5px;
+    }
+    .flash-list .success { background: #d1e7dd; color: #0a3622; border-left: 4px solid var(--success); }
+    .flash-list .error   { background: #f8d7da; color: #58151c; border-left: 4px solid var(--danger); }
+    .flash-list .info    { background: #cff4fc; color: #055160; border-left: 4px solid #0dcaf0; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px 24px; margin-bottom: 20px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--primary-dark); }
+
+    /* ── Stat tiles ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-tile {
+      background: var(--card); border-radius: 10px; border: 1px solid var(--border);
+      padding: 18px 20px; text-align: center;
+    }
+    .stat-tile .val { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-tile .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Tables ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    th { background: var(--accent); color: var(--primary-dark); font-weight: 600;
+         text-align: left; padding: 9px 12px; border-bottom: 2px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9ff; }
+
+    /* ── Forms ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted);
+            margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
+    input, select, textarea {
+      width: 100%; padding: 8px 11px; border: 1px solid var(--border);
+      border-radius: 6px; font-size: 13.5px; color: var(--text);
+      transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,107,191,.12);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 6px; font-size: 13.5px;
+      font-weight: 600; cursor: pointer; border: none; text-decoration: none;
+      transition: filter .15s;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger  { background: var(--danger);  color: #fff; }
+    .btn-sm { padding: 4px 12px; font-size: 12.5px; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block; padding: 2px 9px; border-radius: 99px;
+      font-size: 11.5px; font-weight: 600;
+    }
+    .badge-waiting   { background:#fff3cd; color:#856404; }
+    .badge-active    { background:#cfe2ff; color:#0a58ca; }
+    .badge-completed { background:#d1e7dd; color:#0a3622; }
+    .badge-cancelled { background:#f8d7da; color:#58151c; }
+    .badge-paid      { background:#d1e7dd; color:#0a3622; }
+    .badge-pending   { background:#fff3cd; color:#856404; }
+
+    .mt1 { margin-top: 8px; }  .mt2 { margin-top: 16px; }
+    .text-muted { color: var(--muted); }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .strong { font-weight: 700; }
+  </style>
+</head>
+<body>
+<aside id="sidebar">
+  <div class="brand"><span>🏥</span>HMS</div>
+  <nav>
+    <div class="section-label">Overview</div>
+    <a href="{{ url_for('dashboard') }}"       class="{{ 'active' if request.endpoint=='dashboard' }}">📊 Dashboard</a>
+
+    <div class="section-label">Operations</div>
+    <a href="{{ url_for('patients_list') }}"   class="{{ 'active' if 'patient' in request.endpoint }}">👤 Patients</a>
+    <a href="{{ url_for('doctors_list') }}"    class="{{ 'active' if 'doctor'  in request.endpoint }}">👨‍⚕️ Doctors</a>
+    <a href="{{ url_for('visits_list') }}"     class="{{ 'active' if 'visit'   in request.endpoint }}">📋 OPD / Visits</a>
+    <a href="{{ url_for('pharmacy_list') }}"   class="{{ 'active' if 'pharmac' in request.endpoint }}">💊 Pharmacy</a>
+    <a href="{{ url_for('billing_list') }}"    class="{{ 'active' if 'bill'    in request.endpoint }}">🧾 Billing</a>
+
+    <div class="section-label">Analytics</div>
+    <a href="{{ url_for('reports') }}"         class="{{ 'active' if request.endpoint=='reports' }}">📈 Reports</a>
+  </nav>
+</aside>
+
+<div id="main">
+  <header>{% block header %}Hospital Management System{% endblock %}</header>
+  <div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-list">
+          {% for cat, msg in messages %}
+            <li class="{{ cat }}">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+</body>
+</html>
